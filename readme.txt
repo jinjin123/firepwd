@@ -146,7 +146,7 @@ written for Python 2.7
 
 modules required:
 - pyasn1,  https://pypi.python.org/pypi/pyasn1/, for ASN1 decoding
-- PyCrypto, https://www.dlitz.net/software/pycrypto/, for 3DES EDE decryption
+- PyCrypto, https://www.dlitz.net/software/pycrypto/, for 3DES EDE decryption          pip install pycryptodome
 
 key3.db is read directly, the 3rd party bsddb python module is NOT needed.
 
